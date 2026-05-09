@@ -1,1 +1,5 @@
-{"rewrites":[{"source":"/callback","destination":"/index.html"},{"source":"/(.*)","destination":"/index.html"}]}
+{
+  "rewrites": [
+    { "source": "/callback", "destination": "/index.html" }
+  ]
+}
