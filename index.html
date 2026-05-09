@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>DJ Claude</title>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#0a0a0a"/>
+<link rel="manifest" href="/manifest.json"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+<div id="app">
+<div id="screen-auth" class="screen active">
+<div class="auth-glow"></div>
+<div class="auth-content">
+<div class="logo-label">DJ Claude</div>
+<h1 class="auth-title">Tu DJ personal<br/>con IA</h1>
+<p class="auth-sub">Habla, describe tu mood,<br/>y Spotify toca al instante.</p>
+<button id="btn-login" class="btn-spotify"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg> Conectar con Spotify</button>
+</div>
+</div>
+<div id="screen-main" class="screen">
+<div class="ambient-glow" id="ambient-glow"></div>
+<header class="app-header"><div><div class="header-label">Spotify</div><div class="header-title">DJ Claude</div></div><button id="btn-logout" class="btn-icon">⏏</button></header>
+<div id="phase-idle" class="phase active"><div class="idle-center"><div class="example-label">por ejemplo</div><div class="example-text" id="example-text">"éxitos de Luis Miguel"</div><button id="btn-mic-idle" class="btn-mic"><span>🎤</span></button><div class="mic-hint">toca para hablar</div></div></div>
+<div id="phase-listening" class="phase"><div class="idle-center"><div class="listening-label">escuchando...</div><div class="waveform" id="waveform"></div><button id="btn-mic-listening" class="btn-mic active"><span>⏹</span></button><div class="mic-hint">toca para detener</div></div></div>
+<div id="phase-thinking" class="phase"><div class="idle-center"><div class="prompt-display" id="prompt-display"></div><div class="thinking-dots"><span></span><span></span><span></span></div><div class="mic-hint">buscando en Spotify...</div></div></div>
+<div id="phase-result" class="phase"><div class="result-scroll"><div class="prompt-recap" id="prompt-recap"></div><div class="now-playing-card"><div class="track-info"><div class="track-art" id="track-art">🎵</div><div class="track-meta"><div class="track-title" id="track-title">—</div><div class="track-artist" id="track-artist">—</div></div><button class="btn-like" id="btn-like">🤍</button></div><div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div><div class="progress-times"><span id="time-current">0:00</span><span id="time-total">0:00</span></div><div class="player-controls"><button class="btn-icon" id="btn-prev">⏮</button><button class="btn-play" id="btn-play">⏸</button><button class="btn-icon" id="btn-next">⏭</button></div></div><button class="btn-playlist-toggle" id="btn-playlist-toggle"><span id="playlist-count">Playlist</span><span id="playlist-chevron">▼</span></button><div class="playlist" id="playlist" style="display:none"></div><button class="btn-new-prompt" id="btn-new-prompt">🎤 nuevo prompt</button></div></div>
+</div>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>
