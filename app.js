@@ -51,9 +51,6 @@ const found=[];
 for(const t of result.tracks){const track=await spotifySearch(t.title,t.artist);if(track)found.push({uri:track.uri,title:track.name,artist:track.artists.map(a=>a.name).join(', '),duration:msToTime(track.duration_ms),art:track.album?.images?.[1]?.url||track.album?.images?.[0]?.url});}
 if(!found.length){alert('No encontré canciones. Intenta de nuevo.');setPhase('idle');return;}
 currentTracks=found;currentIdx=0;
-const userId=await getMyId();
-const pid=await createPlaylist(userId,result.playlist_name||'DJ Claude Mix');
-await addTracksToPlaylist(pid,found.map(t=>t.uri));
 await playTracks(found.map(t=>t.uri));
 isPlaying=true;
 document.getElementById('prompt-recap').textContent=`"${prompt}"`;
