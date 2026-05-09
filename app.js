@@ -77,3 +77,4 @@ document.getElementById('btn-prev').addEventListener('click',()=>{if(spotifyPlay
 document.getElementById('btn-like').addEventListener('click',()=>toggleLike(currentIdx));
 document.getElementById('btn-playlist-toggle').addEventListener('click',()=>{playlistOpen=!playlistOpen;document.getElementById('playlist').style.display=playlistOpen?'flex':'none';document.getElementById('playlist-chevron').textContent=playlistOpen?'▲':'▼';});
 document.getElementById('btn-new-prompt').addEventListener('click',()=>{likedTracks.clear();currentTracks=[];setPhase('idle');});}
+// v2 PKCE
