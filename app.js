@@ -36,29 +36,43 @@ async function processPrompt(prompt){
 setPhase('thinking');
 document.getElementById('prompt-display').innerHTML='"'+prompt+'"';
 try{
+// 1. Claude devuelve 5 canciones seed
 const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}]})});
 if(!res.ok){const errData=await res.json().catch(()=>({}));showError(errData.error||'Error del DJ. Intenta de nuevo.');return;}
 const data=await res.json();
 const text=data.content[0].text.replace(/```json|```/g,'').trim();
 const result=JSON.parse(text);
-if(!result.tracks||!result.tracks.length){showError('No encontré canciones para ese mood.');return;}
-const found=[];
-for(const t of result.tracks.slice(0,20)){
+const seeds=result.seed_tracks||result.tracks||[];
+if(!seeds.length){showError('No encontré canciones para ese mood.');return;}
+const playlistName=result.playlist_name||'DJ Claude Mix';
+
+// 2. Buscar las 5 seeds en Spotify para obtener sus IDs
+const seedIds=[];
+for(const t of seeds.slice(0,5)){
 const q=encodeURIComponent(t.title+' '+t.artist);
 const r=await fetch('https://api.spotify.com/v1/search?q='+q+'&type=track&limit=1',{headers:{Authorization:'Bearer '+accessToken}});
 if(r.status===401){localStorage.removeItem('spotify_token');accessToken=null;showAuth();return;}
-if(r.status===429){await new Promise(res=>setTimeout(res,1000));continue;}
+if(r.status===429){showError('Spotify ocupado, espera unos segundos.');return;}
 if(!r.ok) continue;
 const d=await r.json();
-if(d.tracks&&d.tracks.items&&d.tracks.items[0]){
-const tk=d.tracks.items[0];
-found.push({uri:tk.uri,title:tk.name,artist:tk.artists.map(a=>a.name).join(', '),duration:msToTime(tk.duration_ms),art:tk.album&&tk.album.images&&(tk.album.images[1]||tk.album.images[0])?( tk.album.images[1]||tk.album.images[0]).url:null});
+if(d.tracks&&d.tracks.items&&d.tracks.items[0]) seedIds.push(d.tracks.items[0].id);
 }
-await new Promise(res=>setTimeout(res,100));
-}
-if(!found.length){showError('No encontré esas canciones en Spotify.');return;}
+if(!seedIds.length){showError('No encontré esas canciones en Spotify.');return;}
+
+// 3. Usar /recommendations con los seeds → 60 canciones de un solo request
+const recRes=await fetch('https://api.spotify.com/v1/recommendations?limit=60&seed_tracks='+seedIds.slice(0,5).join(','),{headers:{Authorization:'Bearer '+accessToken}});
+if(recRes.status===401){localStorage.removeItem('spotify_token');accessToken=null;showAuth();return;}
+if(!recRes.ok){showError('Error obteniendo recomendaciones de Spotify.');return;}
+const recData=await recRes.json();
+const found=(recData.tracks||[]).map(tk=>({uri:tk.uri,title:tk.name,artist:tk.artists.map(a=>a.name).join(', '),duration:msToTime(tk.duration_ms),art:tk.album&&tk.album.images&&(tk.album.images[1]||tk.album.images[0])?(tk.album.images[1]||tk.album.images[0]).url:null}));
+if(!found.length){showError('No encontré recomendaciones en Spotify.');return;}
+
 currentTracks=found;currentIdx=0;isPlaying=true;
-const activeRes=await fetch('https://api.spotify.com/v1/me/player',{headers:{Authorization:'Bearer '+accessToken}});let activeDeviceId=deviceId;if(activeRes.status===200){const activeData=await activeRes.json();activeDeviceId=activeData.device?.id||deviceId;}const playUrl=activeDeviceId?'https://api.spotify.com/v1/me/player/play?device_id='+activeDeviceId:'https://api.spotify.com/v1/me/player/play';await fetch(playUrl,{method:'PUT',headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify({uris:found.map(t=>t.uri)})});
+const activeRes=await fetch('https://api.spotify.com/v1/me/player',{headers:{Authorization:'Bearer '+accessToken}});
+let activeDeviceId=deviceId;
+if(activeRes.status===200){const activeData=await activeRes.json();activeDeviceId=activeData.device?.id||deviceId;}
+const playUrl=activeDeviceId?'https://api.spotify.com/v1/me/player/play?device_id='+activeDeviceId:'https://api.spotify.com/v1/me/player/play';
+await fetch(playUrl,{method:'PUT',headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify({uris:found.map(t=>t.uri)})});
 document.getElementById('prompt-recap').textContent='"'+prompt+'"';
 renderNowPlaying(0);renderPlaylist();setPhase('result');
 }catch(e){console.error(e);showError('Error inesperado. Intenta de nuevo.');}}
