@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const prompt = req.body?.prompt;
-  if (!prompt) return res.status(400).json({ error: 'missing prompt' });
+  if (!prompt) return res.status(400).json({ error: 'missing prompt', received: JSON.stringify(req.body).substring(0,100) });
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 2000,
-      system: 'Eres un DJ experto. Devuelve SOLO JSON válido sin texto extra ni markdown con este formato exacto: {"playlist_name":"nombre","tracks":[{"title":"cancion","artist":"artista"}]}. Entre 20 y 25 canciones reales, variadas y conocidas.',
+      system: 'Eres un DJ experto. Devuelve SOLO JSON valido sin texto extra ni markdown: {"playlist_name":"nombre","tracks":[{"title":"cancion","artist":"artista"}]}. Entre 20 y 25 canciones reales.',
       messages: [{ role: 'user', content: prompt }],
     }),
   });
