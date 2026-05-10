@@ -43,7 +43,7 @@ const text=data.content[0].text.replace(/```json|```/g,'').trim();
 const result=JSON.parse(text);
 if(!result.tracks||!result.tracks.length){showError('No encontré canciones para ese mood.');return;}
 const found=[];
-for(const t of result.tracks){
+for(const t of result.tracks.slice(0,20)){
 const q=encodeURIComponent(t.title+' '+t.artist);
 const r=await fetch('https://api.spotify.com/v1/search?q='+q+'&type=track&limit=1',{headers:{Authorization:'Bearer '+accessToken}});
 if(r.status===401){localStorage.removeItem('spotify_token');accessToken=null;showAuth();return;}
