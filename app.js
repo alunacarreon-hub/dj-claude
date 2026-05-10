@@ -27,7 +27,7 @@ setPhase('thinking');
 const display=document.getElementById('prompt-display');
 display.innerHTML='"'+prompt+'"';
 try{
-const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,system:'Eres un DJ experto. Devuelve SOLO JSON valido sin texto extra ni markdown: {"playlist_name":"nombre","tracks":[{"title":"cancion","artist":"artista"}]}. Devuelve 60 canciones reales y conocidas del genero pedido. Si el usuario pide musica muy reciente usa lo mejor del genero que conozcas. DEBES devolver exactamente 60 canciones en el JSON.',messages:[{role:'user',content:prompt}]})});
+const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:8000,system:'Eres un DJ experto. Devuelve SOLO JSON valido sin texto extra ni markdown: {"playlist_name":"nombre","tracks":[{"title":"cancion","artist":"artista"}]}. Devuelve 60 canciones reales y conocidas del genero pedido. Si el usuario pide musica muy reciente usa lo mejor del genero que conozcas. DEBES devolver exactamente 60 canciones en el JSON.',messages:[{role:'user',content:prompt}]})});
 const data=await res.json();
 const result=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
 const found=[];
