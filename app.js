@@ -45,12 +45,16 @@ const found=[];
 for(const t of result.tracks){
 const q=encodeURIComponent(t.title+' '+t.artist);
 const r=await fetch('https://api.spotify.com/v1/search?q='+q+'&type=track&limit=1',{headers:{Authorization:'Bearer '+accessToken}});
+if(r.status===401){localStorage.removeItem('spotify_token');accessToken=null;showAuth();return;}
+if(r.status===429){await new Promise(res=>setTimeout(res,1000));continue;}
+if(!r.ok) continue;
 const d=await r.json();
-if(d.error&&d.error.status===401){localStorage.removeItem('spotify_token');accessToken=null;showAuth();return;}
 if(d.tracks&&d.tracks.items&&d.tracks.items[0]){
 const tk=d.tracks.items[0];
 found.push({uri:tk.uri,title:tk.name,artist:tk.artists.map(a=>a.name).join(', '),duration:msToTime(tk.duration_ms),art:tk.album&&tk.album.images&&(tk.album.images[1]||tk.album.images[0])?( tk.album.images[1]||tk.album.images[0]).url:null});
-}}
+}
+await new Promise(res=>setTimeout(res,100));
+}
 if(!found.length){showError('No encontré esas canciones en Spotify.');return;}
 currentTracks=found;currentIdx=0;isPlaying=true;
 const activeRes=await fetch('https://api.spotify.com/v1/me/player',{headers:{Authorization:'Bearer '+accessToken}});let activeDeviceId=deviceId;if(activeRes.status===200){const activeData=await activeRes.json();activeDeviceId=activeData.device?.id||deviceId;}const playUrl=activeDeviceId?'https://api.spotify.com/v1/me/player/play?device_id='+activeDeviceId:'https://api.spotify.com/v1/me/player/play';await fetch(playUrl,{method:'PUT',headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify({uris:found.map(t=>t.uri)})});
