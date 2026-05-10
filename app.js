@@ -7,8 +7,9 @@ function showError(msg){
   const el=document.createElement('div');
   el.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#ff6b6b;border:1px solid #ff6b6b44;border-radius:12px;padding:12px 20px;font-size:14px;z-index:9999;max-width:80%;text-align:center;';
   el.textContent=msg;
+  console.error('showError:', msg);
   document.body.appendChild(el);
-  setTimeout(()=>el.remove(),3500);
+  setTimeout(()=>el.remove(),8000);
   setPhase('idle');
 }
 
