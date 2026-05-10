@@ -1,5 +1,25 @@
 {
   "rewrites": [
     { "source": "/callback", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)\\.html",
+      "headers": [
+        { "key": "Content-Type", "value": "text/html; charset=UTF-8" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.js",
+      "headers": [
+        { "key": "Content-Type", "value": "application/javascript; charset=UTF-8" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.css",
+      "headers": [
+        { "key": "Content-Type", "value": "text/css; charset=UTF-8" }
+      ]
+    }
   ]
 }
