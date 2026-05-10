@@ -27,7 +27,7 @@ setPhase('thinking');
 const display=document.getElementById('prompt-display');
 display.innerHTML='"'+prompt+'"';
 try{
-const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,system:'Eres un DJ experto. Devuelve SOLO JSON valido sin texto extra ni markdown: {"playlist_name":"nombre","tracks":[{"title":"cancion","artist":"artista"}]}. Al menos 50 canciones reales y conocidas, entre mas mejor.',messages:[{role:'user',content:prompt}]})});
+const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,system:'Eres un DJ experto. Devuelve SOLO JSON valido sin texto extra ni markdown: {"playlist_name":"nombre","tracks":[{"title":"cancion","artist":"artista"}]}. Exactamente 50 canciones reales y conocidas. DEBES devolver 50 canciones, ni una menos.',messages:[{role:'user',content:prompt}]})});
 const data=await res.json();
 const result=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
 const found=[];
