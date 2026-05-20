@@ -49,7 +49,7 @@ const playlistName=result.playlist_name||'DJ Claude Mix';
 // 2. Buscar cada seed en Spotify con delay para no hacer rate limit
 const found=[];
 for(const t of seeds){
-const q=encodeURIComponent(t.title+' '+t.artist);
+const q=encodeURIComponent('track:"'+t.title+'" artist:"'+t.artist+'"');
 const r=await fetch('https://api.spotify.com/v1/search?q='+q+'&type=track&limit=1',{headers:{Authorization:'Bearer '+accessToken}});
 if(r.status===401){localStorage.removeItem('spotify_token');accessToken=null;showAuth();return;}
 if(r.status===429){await new Promise(res=>setTimeout(res,2000));continue;}
