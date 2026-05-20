@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 {"playlist_name":"nombre","seed_tracks":[{"title":"cancion","artist":"artista"}],"explicit":false}
 
 Reglas ESTRICTAS:
-- Devuelve exactamente 30 canciones.
+- Devuelve exactamente 50 canciones.
 - Si el usuario pide canciones de UN artista específico, devuelve SOLO canciones de ese artista. No incluyas otros artistas similares.
 - Si el usuario pide un género o mood sin especificar artista, mezcla varios artistas representativos.
 - Todas las canciones deben ser reales y existir en Spotify.
@@ -31,7 +31,7 @@ Reglas ESTRICTAS:
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01'
       },
-      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 1500, system, messages }),
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 2500, system, messages }),
     });
   } catch(e) {
     return res.status(500).json({ error: 'Error conectando con el DJ.' });
