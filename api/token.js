@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   const { code, code_verifier, redirect_uri } = req.body;
-  const credentials = Buffer.from('70303639118c4043ade1fb10ace3d92a:f1c892f7310e48a698d4ddbfdf276061').toString('base64');
+  const credentials = Buffer.from('4cdcc32bbbdb4f68baccd0f09ec5498c:d226da835c36416cb373cf7dfb752e75').toString('base64');
   const response = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
     headers: {
