@@ -46,26 +46,23 @@ const seeds=result.seed_tracks||result.tracks||[];
 if(!seeds.length){showError('No encontré canciones para ese mood.');return;}
 const playlistName=result.playlist_name||'DJ Claude Mix';
 
-// 2. Buscar las 5 seeds en Spotify para obtener sus IDs
-const seedIds=[];
-for(const t of seeds.slice(0,8)){
+// 2. Buscar cada seed en Spotify con delay para no hacer rate limit
+const found=[];
+for(const t of seeds){
 const q=encodeURIComponent(t.title+' '+t.artist);
 const r=await fetch('https://api.spotify.com/v1/search?q='+q+'&type=track&limit=1',{headers:{Authorization:'Bearer '+accessToken}});
 if(r.status===401){localStorage.removeItem('spotify_token');accessToken=null;showAuth();return;}
-if(r.status===429){showError('Spotify ocupado, espera unos segundos.');return;}
+if(r.status===429){await new Promise(res=>setTimeout(res,2000));continue;}
 if(!r.ok) continue;
 const d=await r.json();
-if(d.tracks&&d.tracks.items&&d.tracks.items[0]) seedIds.push(d.tracks.items[0].id);
+if(d.tracks&&d.tracks.items&&d.tracks.items[0]){
+const tk=d.tracks.items[0];
+if(result.explicit===false&&tk.explicit) continue;
+found.push({uri:tk.uri,title:tk.name,artist:tk.artists.map(a=>a.name).join(', '),duration:msToTime(tk.duration_ms),art:tk.album&&tk.album.images&&(tk.album.images[1]||tk.album.images[0])?(tk.album.images[1]||tk.album.images[0]).url:null});
 }
-if(!seedIds.length){showError('No encontré esas canciones en Spotify.');return;}
-
-// 3. Usar /recommendations con los seeds → 60 canciones de un solo request
-const recRes=await fetch('https://api.spotify.com/v1/recommendations?limit=100&seed_tracks='+seedIds.slice(0,5).join(','),{headers:{Authorization:'Bearer '+accessToken}});
-if(recRes.status===401){localStorage.removeItem('spotify_token');accessToken=null;showAuth();return;}
-if(!recRes.ok){showError('Error obteniendo recomendaciones de Spotify.');return;}
-const recData=await recRes.json();
-let recTracks=recData.tracks||[];if(result.explicit===false){recTracks=recTracks.filter(tk=>!tk.explicit);}const found=recTracks.slice(0,60).map(tk=>({uri:tk.uri,title:tk.name,artist:tk.artists.map(a=>a.name).join(', '),duration:msToTime(tk.duration_ms),art:tk.album&&tk.album.images&&(tk.album.images[1]||tk.album.images[0])?(tk.album.images[1]||tk.album.images[0]).url:null}));
-if(!found.length){showError('No encontré recomendaciones en Spotify.');return;}
+await new Promise(res=>setTimeout(res,200));
+}
+if(!found.length){showError('No encontré esas canciones en Spotify.');return;}
 
 currentTracks=found;currentIdx=0;isPlaying=true;
 const activeRes=await fetch('https://api.spotify.com/v1/me/player',{headers:{Authorization:'Bearer '+accessToken}});
