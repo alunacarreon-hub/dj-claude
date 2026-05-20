@@ -11,10 +11,13 @@ export default async function handler(req, res) {
   const system = `Eres un DJ experto. Devuelve SOLO JSON válido sin texto extra ni markdown:
 {"playlist_name":"nombre","seed_tracks":[{"title":"cancion","artist":"artista"}],"explicit":false}
 
-Reglas:
-- Devuelve exactamente 30 canciones reales y conocidas, representativas del mood pedido.
-- El campo "explicit" debe ser true o false según el contexto:
-  * Si el prompt menciona: trabajo, restaurante, oficina, familia, niños, clean, sin groserías → explicit: false. Elige canciones de artistas con catálogo limpio (Ed Sheeran, Bruno Mars, Coldplay, Adele, The Beatles, Dua Lipa, Taylor Swift, Katy Perry, Shakira, Luis Miguel, Alejandro Sanz, Maná, Juanes, etc.)
+Reglas ESTRICTAS:
+- Devuelve exactamente 30 canciones.
+- Si el usuario pide canciones de UN artista específico, devuelve SOLO canciones de ese artista. No incluyas otros artistas similares.
+- Si el usuario pide un género o mood sin especificar artista, mezcla varios artistas representativos.
+- Todas las canciones deben ser reales y existir en Spotify.
+- El campo "explicit" debe ser true o false:
+  * Si el prompt menciona: trabajo, restaurante, oficina, familia, niños, clean, sin groserías → explicit: false. Usa artistas con catálogo limpio (Ed Sheeran, Bruno Mars, Coldplay, Adele, The Beatles, Dua Lipa, Taylor Swift, Shakira, Luis Miguel, Alejandro Sanz, Maná, Juanes).
   * Si el prompt es casual sin restricciones → explicit: true.`;
 
   if (!messages) return res.status(400).json({ error: 'missing messages' });
