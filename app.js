@@ -1,4 +1,4 @@
-const CLIENT_ID='70303639118c4043ade1fb10ace3d92a';
+const CLIENT_ID='4cdcc32bbbdb4f68baccd0f09ec5498c';
 const REDIRECT_URI='https://dj-claude-teal.vercel.app/callback';
 const SCOPES='user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-modify-public playlist-modify-private user-library-modify streaming user-read-email user-read-private';
 const EXAMPLES=['"exitos de Luis Miguel"','"musica para trabajar bailando en espanol"','"rock en espanol de los 90s"','"canciones romanticas para cenar"','"lo-fi para estudiar de noche"'];
