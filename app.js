@@ -46,8 +46,15 @@ const seeds=result.seed_tracks||result.tracks||[];
 if(!seeds.length){showError('No encontré canciones para ese mood.');return;}
 const playlistName=result.playlist_name||'DJ Claude Mix';
 
-// 2. Buscar cada seed en Spotify con delay para no hacer rate limit
+// 2. Buscar cada seed en Spotify - primero búsqueda estricta, luego flexible
 const found=[];
+const foundUris=new Set();
+
+function buildTrack(tk){
+  return {uri:tk.uri,title:tk.name,artist:tk.artists.map(a=>a.name).join(', '),duration:msToTime(tk.duration_ms),art:tk.album&&tk.album.images&&(tk.album.images[1]||tk.album.images[0])?(tk.album.images[1]||tk.album.images[0]).url:null};
+}
+
+// Primera pasada: búsqueda estricta con filtros track:/artist:
 for(const t of seeds){
 const q=encodeURIComponent('track:"'+t.title+'" artist:"'+t.artist+'"');
 const r=await fetch('https://api.spotify.com/v1/search?q='+q+'&type=track&limit=1',{headers:{Authorization:'Bearer '+accessToken}});
@@ -58,10 +65,36 @@ const d=await r.json();
 if(d.tracks&&d.tracks.items&&d.tracks.items[0]){
 const tk=d.tracks.items[0];
 if(result.explicit===false&&tk.explicit) continue;
-found.push({uri:tk.uri,title:tk.name,artist:tk.artists.map(a=>a.name).join(', '),duration:msToTime(tk.duration_ms),art:tk.album&&tk.album.images&&(tk.album.images[1]||tk.album.images[0])?(tk.album.images[1]||tk.album.images[0]).url:null});
+if(!foundUris.has(tk.uri)){foundUris.add(tk.uri);found.push(buildTrack(tk));}
 }
 await new Promise(res=>setTimeout(res,200));
 }
+
+// Segunda pasada: búsqueda flexible para las que no se encontraron (si hay menos de 20)
+if(found.length<20){
+const missing=seeds.filter(t=>!found.find(f=>f.title.toLowerCase()===t.title.toLowerCase()));
+for(const t of missing){
+const q=encodeURIComponent(t.title+' '+t.artist);
+const r=await fetch('https://api.spotify.com/v1/search?q='+q+'&type=track&limit=3',{headers:{Authorization:'Bearer '+accessToken}});
+if(r.status===401){localStorage.removeItem('spotify_token');accessToken=null;showAuth();return;}
+if(r.status===429){await new Promise(res=>setTimeout(res,2000));continue;}
+if(!r.ok) continue;
+const d=await r.json();
+if(d.tracks&&d.tracks.items){
+for(const tk of d.tracks.items){
+if(result.explicit===false&&tk.explicit) continue;
+if(foundUris.has(tk.uri)) continue;
+// Verificar que sea del artista correcto
+const artists=tk.artists.map(a=>a.name.toLowerCase());
+if(artists.some(a=>a.includes(t.artist.toLowerCase().split(' ')[0]))){
+foundUris.add(tk.uri);found.push(buildTrack(tk));break;
+}
+}
+}
+await new Promise(res=>setTimeout(res,200));
+}
+}
+
 if(!found.length){showError('No encontré esas canciones en Spotify.');return;}
 
 currentTracks=found;currentIdx=0;isPlaying=true;
